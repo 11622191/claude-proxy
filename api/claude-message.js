@@ -1,7 +1,4 @@
-// File: api/claude-message.js aggiornato
-
-// Buffer globale per accumulare caratteri
-let messageBuffer = '';
+// File: api/claude-message.js - VERSIONE SEMPLIFICATA FINALE
 
 export default async function handler(req, res) {
   // Abilita CORS
@@ -18,47 +15,21 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing sender or content' });
     }
 
-    const terminatorChar = 'CCCC';
-    
-    if (content === terminatorChar) {
-      // Completa il messaggio - invia il buffer completo
-      if (messageBuffer.length > 0) {
-        const targetUrl = 'http://saspace.ddns.net:8088/api/Communication/send-smart';
-        const params = new URLSearchParams({ 
-          sender, 
-          content: messageBuffer  // Invia il messaggio completo!
-        });
-        if (replyTo) params.append('replyTo', replyTo);
+    // URL del tuo server backend - UNICO PUNTO DI LOGICA
+    const targetUrl = 'http://saspace.ddns.net:8088/api/Communication/send-smart';
+    const params = new URLSearchParams({ sender, content });
+    if (replyTo) params.append('replyTo', replyTo);
 
-        const response = await fetch(`${targetUrl}?${params.toString()}`);
-        const data = await response.json();
+    // Chiamata diretta al backend (pass-through completo)
+    const response = await fetch(`${targetUrl}?${params.toString()}`);
+    const data = await response.json();
 
-        // Svuota il buffer
-        const completeMessage = messageBuffer;
-        messageBuffer = '';
-
-        return res.status(200).json({
-          success: true,
-          message: `Complete message sent: '${completeMessage}'`,
-          messageId: data.messageId
-        });
-      } else {
-        return res.status(200).json({
-          success: true,
-          message: 'No message to complete',
-          messageId: null
-        });
-      }
-    } else {
-      // Aggiungi carattere al buffer (non inviare ancora)
-      messageBuffer += content;
-      
-      return res.status(200).json({
-        success: true,
-        message: `Character '${content}' added to buffer`,
-        messageId: null
-      });
-    }
+    // Restituisci la risposta del backend così com'è
+    return res.status(200).json({
+      success: true,
+      message: `Backend: ${data.message}`,
+      messageId: data.messageId
+    });
 
   } catch (error) {
     return res.status(500).json({
