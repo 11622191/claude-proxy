@@ -14,7 +14,7 @@ export default async function handler(req, res) {
     }
 
     // URL del tuo server
-    const targetUrl = 'http://saspace.ddns.net:8088/api/Communication/send-message';
+    const targetUrl = 'http://saspace.ddns.net:8088/api/Communication/send-smart';
     const params = new URLSearchParams({ sender, content });
     if (replyTo) params.append('replyTo', replyTo);
 
